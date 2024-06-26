@@ -3,10 +3,9 @@ import gymnasium as gym
 import random
 import matplotlib.pyplot as plt
 
-
 def main():
 
-    # create Taxi environment
+    # create Taxi environment without render mode for training
     env = gym.make("Taxi-v3")
 
     # initialize q-table
@@ -59,22 +58,16 @@ def main():
 
             total_rewards += reward
 
-            
             # if done, finish episode
             if done:
                 break
-
-        # Print Q-values after each episode
-        print(f"Q-values for episode {episode}:")
-        print(qtable[state, :])
-        print()
 
         scores.append(total_rewards)
         scores_per_10.append(total_rewards)
         
         if episode % 10 == 0:
             average = np.mean(scores_per_10)
-            print(f"the current episode is {episode} and the epsilon value is {epsilon}. Average reward for the last 10 episodes is: {average}")
+            print(f"The current episode is {episode} and the epsilon value is {epsilon}. Average reward for the last 10 episodes is: {average}")
             scores_per_10 = []
 
         if total_rewards >= 0:
@@ -84,38 +77,14 @@ def main():
         epsilon = np.exp(-decay_rate * episode)
 
     print(f"Training completed over {num_episodes} episodes")
-
     print(f"Average reward: {np.mean(scores)}")
-    print(f"non negative rewards: {non_negative_rewards}")
+    print(f"Non-negative rewards: {non_negative_rewards}")
 
     plt.plot(scores)
     plt.xlabel('Episode')
     plt.ylabel('Score')
     plt.title('Score vs Episode')
     plt.show()
-    
-    input("Press Enter to watch trained agent...")
-
-
-
-    # watch trained agent
-    state, _ = env.reset()
-    done = False
-    rewards = 0
-
-    for s in range(max_steps):
-
-        print(f"TRAINED AGENT")
-        print("Step {}".format(s + 1))
-        action = np.argmax(qtable[state, :])
-        new_state, reward, terminated, truncated, info = env.step(action)
-        rewards += reward
-        env.render()
-        print(f"score: {rewards}")
-        state = new_state
-
-        if terminated or truncated:
-            break
 
     env.close()
 

@@ -3,8 +3,9 @@ import gymnasium as gym
 import random
 import matplotlib.pyplot as plt
 
-def main():
 
+
+def main():
     # create Taxi environment without render mode for training
     env = gym.make("Taxi-v3")
 
@@ -21,7 +22,7 @@ def main():
 
     # training variables
     num_episodes = 1000
-    max_steps = 99 # per episode
+    max_steps = 100 # per episode
 
     scores = []
     non_negative_rewards = 0
@@ -30,13 +31,17 @@ def main():
 
     # training
     for episode in range(num_episodes):
-        
+        check = False
+
         # reset the environment
         state, _ = env.reset()
         done = False
         total_rewards = 0
 
         for s in range(max_steps):
+            if episode % 250:
+                check = True
+                print(qtable[state, :])
 
             # exploration-exploitation tradeoff
             if random.uniform(0, 1) < epsilon:
@@ -46,6 +51,8 @@ def main():
                 # exploit
                 action = np.argmax(qtable[state, :])
 
+            if check:
+                print(action)
             # take action and observe reward
             new_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
@@ -69,6 +76,7 @@ def main():
             average = np.mean(scores_per_10)
             print(f"The current episode is {episode} and the epsilon value is {epsilon}. Average reward for the last 10 episodes is: {average}")
             scores_per_10 = []
+
 
         if total_rewards >= 0:
             non_negative_rewards += 1

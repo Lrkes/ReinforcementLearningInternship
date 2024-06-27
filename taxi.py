@@ -21,7 +21,7 @@ def main():
 
     # Training variables
     num_episodes = 1000
-    max_steps = 100  # per episode
+    max_steps = 100
 
     scores = []
     non_negative_rewards = 0
@@ -30,15 +30,17 @@ def main():
     # Variables for Plot 1: Exploration vs. Exploitation
     exploration_count = 0
     exploitation_count = 0
-    exploration_percentage = []  # Store exploration percentages
+
+    exploration_percentage = []
 
 
+    # def training():
     # Training
     for episode in range(num_episodes):
 
         # Wrap environment with RecordVideo for every 100th episode
-        if episode % 100 == 0 or episode == num_episodes - 1:
-            env = RecordVideo(env, video_folder='videos', episode_trigger=lambda x: True, name_prefix=episode)
+        # if episode % 100 == 0 or episode == num_episodes - 1:
+        #    env = RecordVideo(env, video_folder='videos', episode_trigger=lambda x: True, name_prefix=episode)
 
         # Reset the environment
         state, _ = env.reset()
@@ -68,6 +70,7 @@ def main():
             state = new_state
 
             total_rewards += reward
+
 
             # If done, finish episode
             if done:
@@ -104,7 +107,7 @@ def main():
     print("Total exploration steps:", exploration_count)
     print("Total exploitation steps:", exploitation_count)
 
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))  # 2 rows, 1 column
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
 
     # Plot 1: Exploration vs. Exploitation
     axes[0].plot(exploration_percentage)
@@ -118,7 +121,7 @@ def main():
     axes[1].set_ylabel('Score')
     axes[1].set_title('Score vs Episode')
 
-    plt.tight_layout()  # Adjust spacing for better appearance
+    plt.tight_layout()
     plt.show()
 
     env.close()

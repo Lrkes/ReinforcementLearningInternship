@@ -33,6 +33,9 @@ def main():
 
     exploration_percentage = []
 
+    q_values = [[] for _ in range(action_size)]  # Liste von leeren Listen für jeden Q-Wert
+
+
 
     # def training():
     # Training
@@ -45,7 +48,8 @@ def main():
         # Reset the environment
         state, _ = env.reset()
         done = False
-        total_rewards = 0
+        total_rewards = 0 
+        
 
         for s in range(max_steps):
 
@@ -76,8 +80,14 @@ def main():
             if done:
                 break
 
+        # QValues
+
         scores.append(total_rewards)
         scores_per_10.append(total_rewards)
+
+        for action in range(action_size):
+            q_values[action].append(qtable[2, action])
+
 
 
         if episode % 10 == 0:
@@ -99,13 +109,29 @@ def main():
             env.close()
             env = gym.make("Taxi-v3", render_mode='rgb_array')
 
-    
+        
     
     print(f"Training completed over {num_episodes} episodes")
     print(f"Non-negative rewards: {non_negative_rewards}")
 
     print("Total exploration steps:", exploration_count)
     print("Total exploitation steps:", exploitation_count)
+
+
+    # Create a plot for each position in the arrays
+
+    # Plot all lines on the same graph
+    for action in range(action_size):
+        plt.plot(q_values[action], label=f'Action {action}')
+
+    # Add labels and a legend
+    plt.xlabel('Episode')
+    plt.ylabel('Q-Value')
+    plt.title('Q-Values for Each Action')
+    plt.legend()
+
+    # Show the plot
+    plt.show()
 
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
 

@@ -86,7 +86,7 @@ def main():
         scores_per_10.append(total_rewards)
 
         for action in range(action_size):
-            q_values[action].append(qtable[2, action])
+            q_values[action].append(qtable[3, action])
 
 
 

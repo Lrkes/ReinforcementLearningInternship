@@ -93,7 +93,7 @@ def main():
 
     best_action_grid = np.array(actions).reshape((4, 4))
 
-    # Heatmaps with State Visits per 250 Episodes
+    # 1. Heatmaps with State Visits per 250 Episodes
     fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(15, 15))
     for i, ax in enumerate(axes.flat):
         if i >= num_heatmaps:
@@ -117,7 +117,7 @@ def main():
     table.scale(1, 2)
     plt.show()
 
-    # Split the total reward plot into 5 subplots, each representing 1000 episodes
+    # 2. Shows Reward over time
     episodes_per_split = 1000
     splits = num_episodes // episodes_per_split
 
@@ -133,7 +133,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    # Plot the win percentage per 250 episodes
+    # 3. Plot the win percentage per 250 episodes
     plt.figure(figsize=(12, 6))
     plt.plot(range(heatmap_interval, num_episodes + 1, heatmap_interval), win_count_per_interval, marker='o')
     plt.xlabel("Episode")
@@ -142,19 +142,18 @@ def main():
     plt.show()
 
 
-     # Create subplots
+     # 4. Q-Value over time
     fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(15, 12))
     
-    # Updated the Q-value plot to display the q-value of each state individually
     for state in range(state_size):
         row = state // 4
         col = state % 4
         for action in range(action_size):
             axes[row, col].plot(all_q_values[state][action::state_size], label=f'Action {action_labels[action]}')
-        axes[row, col].set_xlabel('Steps', fontsize=10)  # Reduce font size for better fit
+        axes[row, col].set_xlabel('Steps', fontsize=10)
         axes[row, col].set_ylabel('Q-value', fontsize=10)
-        axes[row, col].set_title(f'State {state}', fontsize=12)  # Set title for each subplot
-        axes[row, col].legend(fontsize=8)  # Reduce legend font size
+        axes[row, col].set_title(f'State {state}', fontsize=12)
+        axes[row, col].legend(fontsize=8)
 
 
     plt.suptitle('Q-values for each Action in each State Over 250 Episodes', y=1.02, fontsize=14)

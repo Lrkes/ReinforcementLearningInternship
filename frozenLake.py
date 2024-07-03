@@ -8,14 +8,16 @@ def main():
     env = gym.make("FrozenLake-v1", is_slippery=True)
 
     state_size = env.observation_space.n
-    action_size = env.observation_space.n
+    action_size = env.action_space.n
     qtable = np.zeros((state_size, action_size))
     state_visits = np.zeros(state_size)
 
-    learning_rate = 0.9
-    discount_rate = 0.915
+    learning_rate = 0.825
+    discount_rate = 0.9
     epsilon = 1.0
-    decay_rate = 0.006
+    decay_rate = 0.005
+
+    check_state = 9
 
     num_episodes = 5000
     max_steps = 100
@@ -27,6 +29,11 @@ def main():
 
     action_labels = ['←', '↓', '→', '↑']
     rewards_per_episode = []
+    win_count_per_interval = []
+    current_win_count = 0
+
+    q_values = [[] for _ in range(action_size)]
+
 
     for episode in range(num_episodes):
         state, _ = env.reset()
@@ -34,9 +41,10 @@ def main():
         state_visits[state] += 1
         total_reward = 0
 
-        print(episode)
-
         for step in range(max_steps):
+
+
+
             if random.uniform(0, 1) < epsilon or np.all(qtable[state, :] == qtable[state, 0]):
                 action = env.action_space.sample()
             else:
@@ -51,22 +59,30 @@ def main():
             state_visits[new_state] += 1
             state = new_state
             total_reward += reward
+                
+            if episode < 1000:
+                for action in range(action_size):
+                    q_values[action].append(qtable[check_state, action])
 
             if done:
                 break
+            
 
         rewards_per_episode.append(total_reward)
+        
+        if total_reward > 0:
+            current_win_count += 1
+        
         epsilon = np.exp(-decay_rate * episode)
 
-        if (episode + 1) % heatmap_interval == 0:
-            heatmap_index = episode // heatmap_interval
-            all_state_visits[heatmap_index] = state_visits
-            if episode != num_episodes - 1:
-                state_visits = np.zeros(state_size)
+        if not (episode + 1) % heatmap_interval:
+            all_state_visits[episode // heatmap_interval] = state_visits
+            win_count_per_interval.append(current_win_count * 100 / heatmap_interval)
+            current_win_count, state_visits = 0, np.zeros(state_size)
 
     env.close()
 
-    print(f" Total rewards {sum(rewards_per_episode)}")
+    print(f"Total rewards: {sum(rewards_per_episode)}")
 
     best_actions = [np.argmax(qtable[state, :]) for state in range(state_size)]
     actions = [
@@ -76,10 +92,10 @@ def main():
 
     best_action_grid = np.array(actions).reshape((4, 4))
 
-    # Display all heatmaps
+    # Heatmaps with State Visits per 250 Episodes
     fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(15, 15))
     for i, ax in enumerate(axes.flat):
-        if i >= num_heatmaps:  # Avoid indexing beyond available data
+        if i >= num_heatmaps:
             ax.axis('off')
             continue
         sns.heatmap(all_state_visits[i].reshape(4, 4), annot=True, cmap="YlGnBu", fmt=".0f", ax=ax)
@@ -105,7 +121,7 @@ def main():
     splits = num_episodes // episodes_per_split
 
     fig, axes = plt.subplots(nrows=splits, ncols=1, figsize=(12, 6 * splits))
-    for i in range(splits):
+    for i in range(splits): 
         start = i * episodes_per_split
         end = (i + 1) * episodes_per_split
         ax = axes[i]
@@ -116,5 +132,23 @@ def main():
     plt.tight_layout()
     plt.show()
 
+    # Plot the win percentage per 250 episodes
+    plt.figure(figsize=(12, 6))
+    plt.plot(range(heatmap_interval, num_episodes + 1, heatmap_interval), win_count_per_interval, marker='o')
+    plt.xlabel("Episode")
+    plt.ylabel("Win Percentage")
+    plt.title("Win Percentage per 250 Episodes")
+    plt.show()
+
+
+    for action in range(action_size):
+        plt.plot(q_values[action], label=f'Action {action_labels[action]}')
+    plt.xlabel('Steps')
+    plt.ylabel('Q-Value')
+    plt.title('Q-Values for Each Action')
+    plt.legend()
+    plt.show()
+
+        
 if __name__ == "__main__":
     main()

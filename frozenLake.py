@@ -17,8 +17,6 @@ def main():
     epsilon = 1.0
     decay_rate = 0.005
 
-    check_state = 9
-
     num_episodes = 5000
     max_steps = 100
     
@@ -32,7 +30,8 @@ def main():
     win_count_per_interval = []
     current_win_count = 0
 
-    q_values = [[] for _ in range(action_size)]
+    q_values = [[] for _ in range(state_size)]  # Track Q-values for all states
+    all_q_values = [[] for _ in range(state_size)]
 
 
     for episode in range(num_episodes):
@@ -60,9 +59,11 @@ def main():
             state = new_state
             total_reward += reward
                 
-            if episode < 1000:
-                for action in range(action_size):
-                    q_values[action].append(qtable[check_state, action])
+            if episode < 1000:  
+                # Correct nested loops to track Q-values for all states
+                for s in range(state_size):  # Using 's' to avoid conflict with the outer loop's 'state'
+                    for action in range(action_size):
+                        all_q_values[s].append(qtable[s, action])
 
             if done:
                 break
@@ -141,12 +142,23 @@ def main():
     plt.show()
 
 
-    for action in range(action_size):
-        plt.plot(q_values[action], label=f'Action {action_labels[action]}')
-    plt.xlabel('Steps')
-    plt.ylabel('Q-Value')
-    plt.title('Q-Values for Each Action')
-    plt.legend()
+     # Create subplots
+    fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(15, 12))
+    
+    # Updated the Q-value plot to display the q-value of each state individually
+    for state in range(state_size):
+        row = state // 4
+        col = state % 4
+        for action in range(action_size):
+            axes[row, col].plot(all_q_values[state][action::state_size], label=f'Action {action_labels[action]}')
+        axes[row, col].set_xlabel('Steps', fontsize=10)  # Reduce font size for better fit
+        axes[row, col].set_ylabel('Q-value', fontsize=10)
+        axes[row, col].set_title(f'State {state}', fontsize=12)  # Set title for each subplot
+        axes[row, col].legend(fontsize=8)  # Reduce legend font size
+
+
+    plt.suptitle('Q-values for each Action in each State Over 250 Episodes', y=1.02, fontsize=14)
+    plt.tight_layout()
     plt.show()
 
         

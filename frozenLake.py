@@ -30,7 +30,7 @@ def main():
     win_count_per_interval = []
     current_win_count = 0
 
-    q_values = [[] for _ in range(state_size)]  # Track Q-values for all states
+    q_values = [[] for _ in range(state_size)]
     all_q_values = [[] for _ in range(state_size)]
 
 
@@ -44,10 +44,13 @@ def main():
 
 
 
-            if random.uniform(0, 1) < epsilon or np.all(qtable[state, :] == qtable[state, 0]):
+            if random.uniform(0, 1) < epsilon:
                 action = env.action_space.sample()
             else:
-                action = np.argmax(qtable[state, :])
+                # Array with Actions that have the highest Q-Value for the State
+                max_indices = np.where(qtable[state, :] == np.max(qtable[state, :]))[0]
+                # Select a Random Action from max_indices
+                action = np.random.choice(max_indices)                    
 
             new_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
@@ -60,8 +63,7 @@ def main():
             total_reward += reward
                 
             if episode < 1000:  
-                # Correct nested loops to track Q-values for all states
-                for s in range(state_size):  # Using 's' to avoid conflict with the outer loop's 'state'
+                for s in range(state_size):
                     for action in range(action_size):
                         all_q_values[s].append(qtable[s, action])
 

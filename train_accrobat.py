@@ -1,6 +1,7 @@
 import gymnasium as gym
 import torch
 import numpy as np
+import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 
 # Explicitly set device to CPU
@@ -17,6 +18,7 @@ agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed)
 n_episodes = 1000
 max_t = 200
 scores = []
+scores_window = []  # For calculating average score over the last 100 episodes
 
 for i_episode in range(1, n_episodes + 1):
     state = env.reset()
@@ -31,12 +33,25 @@ for i_episode in range(1, n_episodes + 1):
         if done:
             break
     scores.append(score)
+    scores_window.append(score)
+    if len(scores_window) > 100:
+        scores_window.pop(0)
+    average_score = np.mean(scores_window)
     agent.update_epsilon()
-    print(f"\rEpisode {i_episode}\tAverage Score: {np.mean(scores[-100:]):.2f}", end="")
+    print(f"\rEpisode {i_episode}\tAverage Score: {average_score:.2f}", end="")
     if i_episode % 100 == 0:
-        print(f"\rEpisode {i_episode}\tAverage Score: {np.mean(scores[-100:]):.2f}")
+        print(f"\rEpisode {i_episode}\tAverage Score: {average_score:.2f}")
 
 # Save the trained model
 torch.save(agent.qnetwork_local.state_dict(), 'dqn_checkpoint.pth')
+
+# Plotting the scores
+plt.figure(figsize=(10,5))
+plt.plot(np.arange(1, len(scores) + 1), scores)
+plt.xlabel('Episode')
+plt.ylabel('Score')
+plt.title('Training Scores Over Time')
+plt.savefig('training_scores.png')  # Save the plot as a PNG file
+plt.show()
 
 env.close()

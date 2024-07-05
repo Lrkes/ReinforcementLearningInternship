@@ -30,7 +30,6 @@ def main():
     win_count_per_interval = []
     current_win_count = 0
 
-    q_values = [[] for _ in range(state_size)]
     all_q_values = [[] for _ in range(state_size)]
 
 
@@ -50,7 +49,7 @@ def main():
                 # Array with Actions that have the highest Q-Value for the State
                 max_indices = np.where(qtable[state, :] == np.max(qtable[state, :]))[0]
                 # Select a Random Action from max_indices
-                action = np.random.choice(max_indices)                    
+                action = np.random.choice(max_indices)              
 
             new_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated

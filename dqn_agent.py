@@ -9,7 +9,7 @@ from model import QNetwork
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, seed, buffer_size=int(1e5), batch_size=64, gamma=0.99, lr=0.001, tau=0.001, update_every=4):
+    def __init__(self, state_size, action_size, seed, buffer_size=int(1e5), batch_size=64, gamma=0.99, lr=0.001, tau=0.005, update_every=4):
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
@@ -44,6 +44,8 @@ class DQNAgent:
             action_values = self.qnetwork_local(state)
         self.qnetwork_local.train()
         
+
+        # TODO: Change like FrozenLake?
         if random.random() > self.eps:
             return np.argmax(action_values.cpu().data.numpy())
         else:

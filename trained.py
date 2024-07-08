@@ -7,7 +7,9 @@ from model import QNetwork
 # Explicitly set device to CPU
 device = torch.device("cpu")
 
-env = gym.make("Acrobat-v1", render_mode="human")
+env = gym.make("Acrobot-v1", render_mode="human")
+
+
 
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
@@ -21,16 +23,16 @@ agent.qnetwork_local.load_state_dict(torch.load('dqn_checkpoint.pth', map_locati
 # Set the agent to evaluation mode
 agent.qnetwork_local.eval()
 
-# Make sure epsilon is set to 0 for evaluation (full exploitation)
+# Exploitation
 agent.eps = 0.0
 
-for i_episode in range(5):  # Run 50 episodes for visualization
+for i_episode in range(5):
     state = env.reset()
-    state = state[0]  # CartPole-v1 returns a tuple with state and additional info
+    state = state[0]
     done = False
     score = 0
     while not done:
-        env.render()  # Render the environment
+        env.render()
         action = agent.act(state)
         new_state, reward, done, _, _ = env.step(action)
         state = new_state

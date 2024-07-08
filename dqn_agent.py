@@ -23,18 +23,21 @@ class DQNAgent:
         self.gamma = gamma
         self.tau = tau
         self.update_every = update_every
-        self.t_step = 0
+        self.t_step = 0 # Determines when the Memory is used
         self.eps = 1.0
         self.eps_end = 0.01
         self.eps_decay = 0.995
         
     def step(self, state, action, reward, next_state, done):
+        # Add Info to Memory
         self.memory.append((state, action, reward, next_state, done))
         
+        # Updates the Step Counter
         self.t_step = (self.t_step + 1) % self.update_every
         if self.t_step == 0:
             if len(self.memory) > self.batch_size:
                 experiences = self.sample()
+
                 self.learn(experiences, self.gamma)
     
     def act(self, state):
@@ -53,6 +56,8 @@ class DQNAgent:
     
     def learn(self, experiences, gamma):
         states, actions, rewards, next_states, dones = experiences
+
+        print(next_states)
         
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
@@ -70,6 +75,7 @@ class DQNAgent:
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
     
+    # Takes random entries from the Memory (Info: state, action, reward, next_state, done)
     def sample(self):
         experiences = random.sample(self.memory, self.batch_size)
         

@@ -10,7 +10,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 env = gym.make('Acrobot-v1')
 
 state_size = env.observation_space.shape[0]
-print(state_size)
+print(f"statesize: {state_size}")
 action_size = env.action_space.n
 seed = 0
 

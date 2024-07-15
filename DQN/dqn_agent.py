@@ -50,7 +50,7 @@ class DQNAgent:
         self.t_step = (self.t_step + 1) % self.update_every
         if self.t_step == 0:
             if len(self.memory) > self.batch_size:
-                # Sample experiences if the step reaches 0 and the memorz is larger than the batch size
+                # Sample experiences if the step reaches 0 and the memory is larger than the batch size
                 experiences = self.sample()
                 # Learn on the previously sampled data
                 self.learn(experiences, self.gamma)

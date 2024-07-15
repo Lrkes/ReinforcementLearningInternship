@@ -1,8 +1,8 @@
 import gymnasium as gym
 import torch
 import numpy as np
-from DQN.dqn_agent import DQNAgent
-from DQN.model import QNetwork
+from dqn_agent import DQNAgent
+from model import QNetwork
 
 # Explicitly set device to CPU
 device = torch.device("cpu")

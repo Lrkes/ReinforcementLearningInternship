@@ -10,7 +10,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 env = gym.make('Acrobot-v1')
 
 state_size = env.observation_space.shape[0]
-print(f"statesize: {state_size}")
 action_size = env.action_space.n
 seed = 0
 
@@ -25,8 +24,10 @@ for i_episode in range(1, n_episodes + 1):
     state = env.reset()
     state = state[0]  # Acrobot-v1 returns a tuple with state and additional info
     score = 0
+
     for t in range(max_t):
         action = agent.act(state)
+
         next_state, reward, done, _, _ = env.step(action)
         agent.step(state, action, reward, next_state, done)
         state = next_state

@@ -19,6 +19,8 @@ n_episodes = 1000
 max_t = 200
 scores = []
 scores_window = []
+average_scores = []
+epsilons = []
 
 for i_episode in range(1, n_episodes + 1):
     state = env.reset()
@@ -35,13 +37,14 @@ for i_episode in range(1, n_episodes + 1):
         if done:
             break
 
-
     # Scores
     scores.append(score)
     scores_window.append(score)
     if len(scores_window) > 100:
         scores_window.pop(0)
     average_score = np.mean(scores_window)
+    average_scores.append(average_score)
+    epsilons.append(agent.eps)
     agent.update_epsilon()
     print(f"\rEpisode {i_episode}\tAverage Score: {average_score:.2f}", end="")
     if i_episode % 100 == 0:
@@ -51,12 +54,31 @@ for i_episode in range(1, n_episodes + 1):
 torch.save(agent.qnetwork_local.state_dict(), 'checkpoints/dqn_checkpoint.pth')
 
 # Plotting the scores
-plt.figure(figsize=(10,5))
+plt.figure(figsize=(15, 10))
+
+# Plot the raw scores
+plt.subplot(3, 1, 1)
 plt.plot(np.arange(1, len(scores) + 1), scores)
 plt.xlabel('Episode')
 plt.ylabel('Score')
 plt.title('Training Scores Over Time')
-plt.savefig('training_scores.png')
+
+# Plot the average scores
+plt.subplot(3, 1, 2)
+plt.plot(np.arange(1, len(average_scores) + 1), average_scores)
+plt.xlabel('Episode')
+plt.ylabel('Average Score')
+plt.title('Average Score Over Last 100 Episodes')
+
+# Plot the epsilon decay
+plt.subplot(3, 1, 3)
+plt.plot(np.arange(1, len(epsilons) + 1), epsilons)
+plt.xlabel('Episode')
+plt.ylabel('Epsilon')
+plt.title('Epsilon Decay Over Time')
+
+plt.tight_layout()
+plt.savefig('Visualization/accrobat/training_metrics.png')
 plt.show()
 
 env.close()

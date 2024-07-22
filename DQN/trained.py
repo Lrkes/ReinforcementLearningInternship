@@ -18,7 +18,7 @@ seed = 0
 agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed)
 
 # Load the trained model
-agent.qnetwork_local.load_state_dict(torch.load('dqn_checkpoint.pth', map_location=device))
+agent.qnetwork_local.load_state_dict(torch.load('checkpoints/dqn_checkpoint.pth', map_location=device))
 
 # Set the agent to evaluation mode
 agent.qnetwork_local.eval()

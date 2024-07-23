@@ -9,13 +9,21 @@ device = torch.device("cpu")
 
 env = gym.make("MountainCar-v0", render_mode="human")
 
-
+# Define settings
+learning_rate = 0.01
+batch_size = 64
+update_every = 10
+network_size = 64
+eps_start = 1.0
+eps_end = 0.01
+eps_decay = 0.995
+gamma = 0.9
 
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 seed = 0
 
-agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed, size=64)
+agent = DQNAgent(state_size=state_size, action_size=action_size, gamma=gamma, seed=seed, eps_start=eps_start, eps_end=eps_end, eps_decay=eps_decay, update_every=update_every, size=network_size, lr=learning_rate, batch_size=batch_size)
 
 # Load the trained model
 agent.qnetwork_local.load_state_dict(torch.load('checkpoints/mCar_checkpoint.pth', map_location=device))

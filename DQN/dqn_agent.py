@@ -10,8 +10,6 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class DQNAgent:
     def __init__(self, state_size, action_size, seed, eps_start, eps_end, eps_decay, buffer_size=int(1e5), batch_size=64, gamma=0.99, lr=0.001, tau=0.005, update_every=4, size=128):
-
-        # Environment info and seed
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
@@ -40,13 +38,11 @@ class DQNAgent:
         self.eps_end = eps_end  # Minimum epsilon value
         self.eps_decay = eps_decay  # Decay rate for epsilon
 
-
-    # Method that determines what the agent will do next.
     def step(self, state, action, reward, next_state, done):
         # Add Info to Memory
         self.memory.append((state, action, reward, next_state, done))
         
-        # Updates the Step Counter
+        # Update the Step Counter
         self.t_step = (self.t_step + 1) % self.update_every
         if self.t_step == 0:
             if len(self.memory) > self.batch_size:
@@ -60,25 +56,18 @@ class DQNAgent:
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
         # Set the network to evaluation mode (important for accurate predictions)
         self.qnetwork_local.eval()
-
-        # Get action values from the local network without updating the network
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
-
         # Set the network back to training mode (to resume learning later)
         self.qnetwork_local.train()
         
-
-        # TODO: Change like FrozenLake?
-        # Choose the action with the highest value
+        # Choose the action with the highest value or explore
         if random.random() > self.eps:
             return np.argmax(action_values.cpu().data.numpy())
         else:
-            # Otherwise, explore by selecting a random action
             return random.choice(np.arange(self.action_size))
     
     def learn(self, experiences, gamma):
-        # Unpack the batch of experiences
         states, actions, rewards, next_states, dones = experiences
 
         # Get the maximum predicted Q-values for the next states from the target model
@@ -90,20 +79,16 @@ class DQNAgent:
         Q_expected = self.qnetwork_local(states).gather(1, actions)
 
         # Compute the loss (mean squared error between expected and target Q-values)
-        loss = F.mse_loss(Q_expected, Q_targets)
-        # Zero the gradients
+        loss = F.mse_loss(Q_expected, Q_targets)  # Consider using F.smooth_l1_loss for stability
         self.optimizer.zero_grad()
-        # Perform backpropagation
         loss.backward()
-        # Update the weights
         self.optimizer.step()
 
         # Soft update the target network
         self.soft_update(self.qnetwork_local, self.qnetwork_target, self.tau)
 
     def soft_update(self, local_model, target_model, tau):
-        # Soft update model parameters:
-        # θ_target = τ*θ_local + (1 - τ)*θ_target
+        # Soft update model parameters: θ_target = τ*θ_local + (1 - τ)*θ_target
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau * local_param.data + (1.0 - tau) * target_param.data)
 

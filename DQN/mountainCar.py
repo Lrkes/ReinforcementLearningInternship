@@ -10,20 +10,21 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 env = gym.make("MountainCar-v0")
 
 # Define settings
-learning_rate = 0.01
-batch_size = 32
-update_every = 20
+learning_rate = 0.001
+batch_size = 64
+update_every = 5
 network_size = 64
 buffer_size = 125000
-eps_start = 1.0
+eps_start = 1
 eps_end = 0.01
 eps_decay = 0.995
+gamma = 0.96
 
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 seed = 0
 
-agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed, eps_start=eps_start, eps_end=eps_end, eps_decay=eps_decay, buffer_size=buffer_size, update_every=update_every, size=network_size, lr=learning_rate, batch_size=batch_size)
+agent = DQNAgent(state_size=state_size, action_size=action_size, gamma=gamma, seed=seed, eps_start=eps_start, eps_end=eps_end, eps_decay=eps_decay, buffer_size=buffer_size, update_every=update_every, size=network_size, lr=learning_rate, batch_size=batch_size)
 
 n_episodes = 1000
 max_t = 200
@@ -88,7 +89,7 @@ plt.ylabel('Epsilon')
 plt.title('Epsilon Decay Over Time')
 
 # Add settings to the plot
-plt.figtext(0.15, 0.01, f'Learning Rate: {learning_rate}\nBatch Size: {batch_size}\nUpdate Every: {update_every}\nBuffer Size: {buffer_size}', fontsize=12, bbox=dict(facecolor='white', alpha=0.5))
+plt.figtext(0.15, 0.01, f'Learning Rate: {learning_rate}\nBatch Size: {batch_size}\nUpdate Every: {update_every}\nBuffer Size: {buffer_size}\ngamma: {gamma}', fontsize=12, bbox=dict(facecolor='white', alpha=0.5))
 
 plt.tight_layout()
 

@@ -6,12 +6,12 @@ import numpy as np
 from collections import deque
 
 class QNetwork(nn.Module):
-    def __init__(self, state_size, action_size, seed):
+    def __init__(self, state_size, action_size, size, seed):
         super(QNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
-        self.fc1 = nn.Linear(state_size, 128)
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, action_size)
+        self.fc1 = nn.Linear(state_size, size)
+        self.fc2 = nn.Linear(size, size)
+        self.fc3 = nn.Linear(size, action_size)
     
     def forward(self, state):
         x = F.relu(self.fc1(state))

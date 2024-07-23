@@ -7,7 +7,7 @@ from model import QNetwork
 # Explicitly set device to CPU
 device = torch.device("cpu")
 
-env = gym.make("Acrobot-v1", render_mode="human")
+env = gym.make("MountainCar-v0", render_mode="human")
 
 
 
@@ -15,10 +15,10 @@ state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 seed = 0
 
-agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed)
+agent = DQNAgent(state_size=state_size, action_size=action_size, seed=seed, size=64)
 
 # Load the trained model
-agent.qnetwork_local.load_state_dict(torch.load('checkpoints/dqn_checkpoint.pth', map_location=device))
+agent.qnetwork_local.load_state_dict(torch.load('checkpoints/mCar_checkpoint.pth', map_location=device))
 
 # Set the agent to evaluation mode
 agent.qnetwork_local.eval()

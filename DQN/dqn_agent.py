@@ -9,7 +9,7 @@ from model import QNetwork
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, seed, buffer_size=int(1e5), batch_size=64, gamma=0.99, lr=0.001, tau=0.005, update_every=4):
+    def __init__(self, state_size, action_size, seed, eps_start, eps_end, eps_decay, buffer_size=int(1e5), batch_size=64, gamma=0.99, lr=0.001, tau=0.005, update_every=4, size=128):
 
         # Environment info and seed
         self.state_size = state_size
@@ -17,8 +17,8 @@ class DQNAgent:
         self.seed = random.seed(seed)
         
         # Neural networks and optimizer
-        self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)  # Local network for training
-        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)  # Target network for stable Q-value estimation
+        self.qnetwork_local = QNetwork(state_size, action_size, size, seed).to(device)  # Local network for training
+        self.qnetwork_target = QNetwork(state_size, action_size, size, seed).to(device)  # Target network for stable Q-value estimation
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=lr)  # Optimizer for training the local network
         
         # Experience replay memory
@@ -36,9 +36,9 @@ class DQNAgent:
         self.t_step = 0  # Counter to track the number of steps
         
         # Exploration-exploitation parameters
-        self.eps = 1.0  # Initial epsilon value for exploration
-        self.eps_end = 0.01  # Minimum epsilon value
-        self.eps_decay = 0.995  # Decay rate for epsilon
+        self.eps = eps_start  # Initial epsilon value for exploration
+        self.eps_end = eps_end  # Minimum epsilon value
+        self.eps_decay = eps_decay  # Decay rate for epsilon
 
 
     # Method that determines what the agent will do next.

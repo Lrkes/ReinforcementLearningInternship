@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import layers
+from keras import layers
 
 class Actor(tf.keras.Model):
     def __init__(self, state_size, action_size, size):

@@ -44,7 +44,7 @@ class ReplayBuffer:
 
 
 class DDPGAgent:
-    def __init__(self, state_size, action_size, size=128, lr_actor=0.001, lr_critic=0.002, gamma=0.99, tau=0.005, buffer_size=1000000, batch_size=64):
+    def __init__(self, state_size, action_size, size=128, lr_actor=0.0005, lr_critic=0.001, gamma=0.99, tau=0.005, buffer_size=100000, batch_size=64):
         self.state_size = state_size
         self.action_size = action_size
         self.gamma = gamma
@@ -56,8 +56,8 @@ class DDPGAgent:
         self.target_actor = Actor(state_size, action_size, size)
         self.target_critic = Critic(state_size, action_size, size)
         
-        self.actor_optimizer = tf.keras.optimizers.Adam(lr_actor)
-        self.critic_optimizer = tf.keras.optimizers.Adam(lr_critic)
+        self.actor_optimizer = tf.keras.optimizers.Adam(learning_rate=lr_actor)
+        self.critic_optimizer = tf.keras.optimizers.Adam(learning_rate=lr_critic)
 
         self.target_actor.set_weights(self.actor.get_weights())
         self.target_critic.set_weights(self.critic.get_weights())
@@ -69,18 +69,20 @@ class DDPGAgent:
         for (target, weight) in zip(target_weights, weights):
             target.assign(weight * tau + target * (1.0 - tau))
 
+    @tf.function
     def act(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
         action = self.actor(state)
-        action = action.numpy()[0]
-        action += self.noise()
-        return np.clip(action, -1.0, 1.0)
+        action += tf.convert_to_tensor(self.noise(), dtype=tf.float32)
+        action = tf.clip_by_value(action, -1.0, 1.0)
+        return action[0]
 
     def step(self, state, action, reward, next_state, done):
         self.buffer.add(state, action, reward, next_state, done)
         if len(self.buffer) > self.batch_size:
             self.learn()
 
+    @tf.function
     def learn(self):
         states, actions, rewards, next_states, dones = self.buffer.sample()
 
@@ -113,3 +115,10 @@ class DDPGAgent:
         # Update target networks
         self.update_target(self.target_actor.variables, self.actor.variables, self.tau)
         self.update_target(self.target_critic.variables, self.critic.variables, self.tau)
+
+        # Log additional information
+        #tf.print("Critic Loss:", critic_loss, "Actor Loss:", actor_loss)
+        #tf.print("Sample Actions:", actions)
+        #tf.print("Predicted Actions:", actions_pred)
+        #tf.print("Sample Q-values:", q_values)
+        # tf.print("Target Q-values:", target_q_values)

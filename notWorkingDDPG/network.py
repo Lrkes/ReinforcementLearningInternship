@@ -1,5 +1,6 @@
 import tensorflow as tf
 from keras import layers
+upper_bound = 2
 
 class Actor(tf.keras.Model):
     def __init__(self, state_size, action_size, size):
@@ -27,21 +28,28 @@ class Critic(tf.keras.Model):
         x = self.fc2(x)
         return self.fc3(x)
 
-# Create an instance of each model
 def create_actor(state_size, action_size, size):
     state_input = layers.Input(shape=(state_size,))
     x = layers.Dense(size, activation='relu', kernel_initializer='he_normal')(state_input)
     x = layers.Dense(size, activation='relu', kernel_initializer='he_normal')(x)
     output = layers.Dense(action_size, activation='tanh', kernel_initializer='glorot_normal')(x)
+    output = output * upper_bound
     model = tf.keras.Model(inputs=state_input, outputs=output)
     return model
 
 def create_critic(state_size, action_size, size):
     state_input = layers.Input(shape=(state_size,))
     action_input = layers.Input(shape=(action_size,))
+    
+    # Define the state pathway
     state_value = layers.Dense(size, activation='relu', kernel_initializer='he_normal')(state_input)
-    x = tf.concat([state_value, action_input], axis=-1)
-    x = layers.Dense(size, activation='relu', kernel_initializer='he_normal')(x)
+    
+    # Concatenate state and action inputs
+    concat = layers.Concatenate()([state_value, action_input])
+    
+    # Define the action pathway
+    x = layers.Dense(size, activation='relu', kernel_initializer='he_normal')(concat)
     output = layers.Dense(1, kernel_initializer='glorot_normal')(x)
+    
     model = tf.keras.Model(inputs=[state_input, action_input], outputs=output)
     return model

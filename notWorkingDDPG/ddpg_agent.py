@@ -2,8 +2,7 @@ import numpy as np
 import tensorflow as tf
 from collections import deque
 import random
-from network import Actor, Critic
-
+from network import create_actor, create_critic
 class OUActionNoise:
     def __init__(self, mean, std_deviation, theta=0.15, dt=1e-2, x_initial=None):
         self.theta = theta
@@ -51,11 +50,12 @@ class DDPGAgent:
         self.tau = tau
         self.batch_size = batch_size
 
-        self.actor = Actor(state_size, action_size, size)
-        self.critic = Critic(state_size, action_size, size)
-        self.target_actor = Actor(state_size, action_size, size)
-        self.target_critic = Critic(state_size, action_size, size)
-        
+        # Initialize models using the functional API
+        self.actor = create_actor(state_size, action_size, size)
+        self.critic = create_critic(state_size, action_size, size)
+        self.target_actor = create_actor(state_size, action_size, size)
+        self.target_critic = create_critic(state_size, action_size, size)
+
         self.actor_optimizer = tf.keras.optimizers.Adam(learning_rate=lr_actor)
         self.critic_optimizer = tf.keras.optimizers.Adam(learning_rate=lr_critic)
 
@@ -65,8 +65,8 @@ class DDPGAgent:
         self.buffer = ReplayBuffer(buffer_size, batch_size)
         self.noise = OUActionNoise(mean=np.zeros(action_size), std_deviation=float(0.2) * np.ones(action_size))
 
-    def update_target(self, target_weights, weights, tau):
-        for (target, weight) in zip(target_weights, weights):
+    def update_target(self, target_model, model, tau):
+        for (target, weight) in zip(target_model.variables, model.variables):
             target.assign(weight * tau + target * (1.0 - tau))
 
     @tf.function
@@ -94,11 +94,11 @@ class DDPGAgent:
 
         # Critic update
         next_actions = self.target_actor(next_states)
-        next_q_values = self.target_critic(next_states, next_actions)
+        next_q_values = self.target_critic([next_states, next_actions])  # Provide inputs as a list
         target_q_values = rewards + self.gamma * next_q_values * (1.0 - dones)
 
         with tf.GradientTape() as tape:
-            q_values = self.critic(states, actions)
+            q_values = self.critic([states, actions])  # Provide inputs as a list
             critic_loss = tf.math.reduce_mean(tf.math.square(target_q_values - q_values))
 
         critic_grad = tape.gradient(critic_loss, self.critic.trainable_variables)
@@ -107,14 +107,14 @@ class DDPGAgent:
         # Actor update
         with tf.GradientTape() as tape:
             actions_pred = self.actor(states)
-            actor_loss = -tf.math.reduce_mean(self.critic(states, actions_pred))
+            actor_loss = -tf.math.reduce_mean(self.critic([states, actions_pred]))  # Provide inputs as a list
 
         actor_grad = tape.gradient(actor_loss, self.actor.trainable_variables)
         self.actor_optimizer.apply_gradients(zip(actor_grad, self.actor.trainable_variables))
 
         # Update target networks
-        self.update_target(self.target_actor.variables, self.actor.variables, self.tau)
-        self.update_target(self.target_critic.variables, self.critic.variables, self.tau)
+        self.update_target(self.target_actor, self.actor, self.tau)
+        self.update_target(self.target_critic, self.critic, self.tau)
 
         # Log additional information
         #tf.print("Critic Loss:", critic_loss, "Actor Loss:", actor_loss)
@@ -122,3 +122,4 @@ class DDPGAgent:
         #tf.print("Predicted Actions:", actions_pred)
         #tf.print("Sample Q-values:", q_values)
         # tf.print("Target Q-values:", target_q_values)
+

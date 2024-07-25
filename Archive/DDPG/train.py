@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-from ddpg_agent import DDPGAgent
+from agent import DDPGAgent
 from collections import deque
 import datetime
 

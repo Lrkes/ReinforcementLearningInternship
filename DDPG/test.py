@@ -6,7 +6,6 @@ env = gym.make("Pendulum-v1", render_mode="human")
 
 agent = DDPGAgent()
 
-# Load the weights
 agent.actor_model.load_weights("weights/pendulum_actor.weights.h5")
 agent.critic_model.load_weights("weights/pendulum_critic.weights.h5")
 agent.target_actor.load_weights("weights/pendulum_target_actor.weights.h5")

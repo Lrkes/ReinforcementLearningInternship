@@ -1,5 +1,5 @@
 import gymnasium as gym
-from ddpg_agent import DDPGAgent
+from notWorkingDDPG.agent import DDPGAgent
 
 env = gym.make('Pendulum-v1', render_mode="human")
 

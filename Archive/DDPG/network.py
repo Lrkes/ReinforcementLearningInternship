@@ -1,5 +1,6 @@
 import tensorflow as tf
 from keras import layers
+
 upper_bound = 2
 
 class Actor(tf.keras.Model):

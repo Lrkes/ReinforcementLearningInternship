@@ -6,7 +6,6 @@ from ddpg_Agent import DDPGAgent
 
 env = gym.make("Pendulum-v1")
 agent = DDPGAgent()
-std_dev = 0.2
 
 total_episodes = 100
 

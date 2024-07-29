@@ -7,7 +7,7 @@ from ddpg_Agent import DDPGAgent
 env = gym.make("Pendulum-v1")
 agent = DDPGAgent()
 
-total_episodes = 100
+total_episodes = 1000
 
 ep_reward_list = []
 avg_reward_list = []
@@ -43,7 +43,7 @@ plt.xlabel("Episode")
 plt.ylabel("Avg. Episodic Reward")
 plt.show()
 
-agent.actor_model.save_weights("weights/pendulum_actor.weights.h5")
-agent.critic_model.save_weights("weights/pendulum_critic.weights.h5")
-agent.target_actor.save_weights("weights/pendulum_target_actor.weights.h5")
-agent.target_critic.save_weights("weights/pendulum_target_critic.weights.h5")
+agent.actor_model.save_weights("weights/1000pendulum_actor.weights.h5")
+agent.critic_model.save_weights("weights/1000pendulum_critic.weights.h5")
+agent.target_actor.save_weights("weights/1000pendulum_target_actor.weights.h5")
+agent.target_critic.save_weights("weights/1000pendulum_target_critic.weights.h5")

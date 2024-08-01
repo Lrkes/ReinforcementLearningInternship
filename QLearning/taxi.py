@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from gymnasium.wrappers import RecordVideo
 
 def main():
-    # create Taxi environment with rgb_array render mode for recording
     env = gym.make("Taxi-v3", render_mode='rgb_array')
     
     # Initialize q-table
@@ -23,28 +22,18 @@ def main():
     num_episodes = 1000
     max_steps = 100
 
+
+    # For Plots and prints
     scores = []
     non_negative_rewards = 0
     scores_per_10 = []
-
-    # Variables for Plot 1: Exploration vs. Exploitation
+    
     exploration_count = 0
     exploitation_count = 0
-
     exploration_percentage = []
 
-    q_values = [[] for _ in range(action_size)]  # Liste von leeren Listen für jeden Q-Wert
-
-
-
-    # def training():
     # Training
     for episode in range(num_episodes):
-
-        # Wrap environment with RecordVideo for every 100th episode
-        # if episode % 100 == 0 or episode == num_episodes - 1:
-        #    env = RecordVideo(env, video_folder='videos', episode_trigger=lambda x: True, name_prefix=episode)
-
         # Reset the environment
         state, _ = env.reset()
         done = False
@@ -52,8 +41,6 @@ def main():
         
 
         for s in range(max_steps):
-
-            # Exploration-exploitation tradeoff
             if random.uniform(0, 1) < epsilon:
                 # Explore
                 action = env.action_space.sample()
@@ -75,19 +62,12 @@ def main():
 
             total_rewards += reward
 
-
-            # If done, finish episode
             if done:
                 break
 
-        # QValues
-
+        # For Visualization
         scores.append(total_rewards)
         scores_per_10.append(total_rewards)
-
-        for action in range(action_size):
-            q_values[action].append(qtable[3, action])
-
 
 
         if episode % 10 == 0:
@@ -101,39 +81,16 @@ def main():
         if total_rewards >= 0:
             non_negative_rewards += 1
 
+
         # Decrease epsilon
         epsilon = np.exp(-decay_rate * episode)
 
-        # Close the wrapped environment to save the video and revert to the base environment
-        if episode % 100 == 0:
-            env.close()
-            env = gym.make("Taxi-v3", render_mode='rgb_array')
-
-        
     
     print(f"Training completed over {num_episodes} episodes")
     print(f"Non-negative rewards: {non_negative_rewards}")
 
-    print("Total exploration steps:", exploration_count)
-    print("Total exploitation steps:", exploitation_count)
 
-
-    # Create a plot for each position in the arrays
-
-    # Plot all lines on the same graph
-    for action in range(action_size):
-        plt.plot(q_values[action], label=f'Action {action}')
-
-    # Add labels and a legend
-    plt.xlabel('Episode')
-    plt.ylabel('Q-Value')
-    plt.title('Q-Values for Each Action')
-    plt.legend()
-
-    # Show the plot
-    plt.show()
-
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
+    axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
 
     # Plot 1: Exploration vs. Exploitation
     axes[0].plot(exploration_percentage)

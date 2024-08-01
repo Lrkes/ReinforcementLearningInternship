@@ -107,8 +107,10 @@ def main():
         ax.set_xlabel("Column")
         ax.set_ylabel("Row")
     plt.tight_layout()
+    plt.savefig('Visualization/frozenLake/heatmap_statevisits2.png')
     plt.show()
 
+    # 2. Best actions Map
     fig, ax = plt.subplots()
     ax.axis('off')
     ax.axis('tight')
@@ -116,9 +118,11 @@ def main():
     table.auto_set_font_size(False)
     table.set_fontsize(12)
     table.scale(1, 2)
+    plt.savefig('Visualization/frozenLake/best_actions2.png')
+
     plt.show()
 
-    # 2. Shows Reward over time
+    # 3. Shows Reward over time
     episodes_per_split = 1000
     splits = num_episodes // episodes_per_split
 
@@ -132,18 +136,21 @@ def main():
         ax.set_ylabel("Total Reward")
         ax.set_title(f"Total Reward per Episode (Episodes {start + 1} to {end})")
     plt.tight_layout()
+    plt.savefig('Visualization/frozenLake/reward2.png')
     plt.show()
 
-    # 3. Plot the win percentage per 250 episodes
+    # 4. Plot the win percentage per 250 episodes
     plt.figure(figsize=(12, 6))
     plt.plot(range(heatmap_interval, num_episodes + 1, heatmap_interval), win_count_per_interval, marker='o')
     plt.xlabel("Episode")
     plt.ylabel("Win Percentage")
     plt.title("Win Percentage per 250 Episodes")
+    plt.savefig('Visualization/frozenLake/win_percentage2.png')
+
     plt.show()
 
 
-     # 4. Q-Value over time
+     # 5. Q-Value over time
     fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(15, 12))
     
     for state in range(state_size):
@@ -159,6 +166,7 @@ def main():
 
     plt.suptitle('Q-values for each Action in each State Over 250 Episodes', y=1.02, fontsize=14)
     plt.tight_layout()
+    plt.savefig('Visualization/frozenLake/Q-Values2.png')
     plt.show()
 
         

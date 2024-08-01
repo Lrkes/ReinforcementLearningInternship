@@ -27,7 +27,7 @@ def main():
     scores = []
     non_negative_rewards = 0
     scores_per_10 = []
-    
+
     exploration_count = 0
     exploitation_count = 0
     exploration_percentage = []
@@ -41,12 +41,11 @@ def main():
         
 
         for s in range(max_steps):
+            # Behavior policy
             if random.uniform(0, 1) < epsilon:
-                # Explore
                 action = env.action_space.sample()
                 exploration_count += 1
             else:
-                # Exploit
                 action = np.argmax(qtable[state, :])
                 exploitation_count += 1
 
@@ -54,7 +53,7 @@ def main():
             new_state, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
 
-            # Q-learning algorithm
+            # Q-learning algorithm (Target policy)
             qtable[state, action] = qtable[state, action] + learning_rate * (reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action])
 
             # Update to our new state

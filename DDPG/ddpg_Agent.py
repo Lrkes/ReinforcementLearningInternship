@@ -109,6 +109,7 @@ class DDPGAgent:
     @tf.function
     def update(self, state_batch, action_batch, reward_batch, next_state_batch):
         with tf.GradientTape() as tape:
+            # 
             target_actions = self.target_actor(next_state_batch, training=True)
             y = reward_batch + self.gamma * self.target_critic([next_state_batch, target_actions], training=True)
             critic_value = self.critic_model([state_batch, action_batch], training=True)
@@ -125,6 +126,7 @@ class DDPGAgent:
         actor_grad = tape.gradient(actor_loss, self.actor_model.trainable_variables)
         self.actor_optimizer.apply_gradients(zip(actor_grad, self.actor_model.trainable_variables))
 
+    # Samples the buffer for the update method
     def learn(self):
         state_batch, action_batch, reward_batch, next_state_batch = self.buffer.sample()
         self.update(state_batch, action_batch, reward_batch, next_state_batch)

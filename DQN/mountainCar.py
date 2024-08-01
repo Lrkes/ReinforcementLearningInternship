@@ -4,6 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 
+
+# TODO: Improve performance
+
 # Explicitly set device to CPU
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -87,10 +90,6 @@ plt.plot(np.arange(1, len(epsilons) + 1), epsilons)
 plt.xlabel('Episode')
 plt.ylabel('Epsilon')
 plt.title('Epsilon Decay Over Time')
-
-# Add settings to the plot
-plt.figtext(0.15, 0.01, f'Learning Rate: {learning_rate}\nBatch Size: {batch_size}\nUpdate Every: {update_every}\nBuffer Size: {buffer_size}\ngamma: {gamma}', fontsize=12, bbox=dict(facecolor='white', alpha=0.5))
-
 plt.tight_layout()
 
 # Save the plot with a unique filename

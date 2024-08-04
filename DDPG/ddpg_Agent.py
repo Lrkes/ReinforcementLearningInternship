@@ -117,7 +117,7 @@ class DDPGAgent:
 
         critic_grad = tape.gradient(critic_loss, self.critic_model.trainable_variables)
         self.critic_optimizer.apply_gradients(zip(critic_grad, self.critic_model.trainable_variables))
-
+ 
         with tf.GradientTape() as tape:
             actions = self.actor_model(state_batch, training=True)
             critic_value = self.critic_model([state_batch, actions], training=True)

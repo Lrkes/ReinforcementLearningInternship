@@ -1,4 +1,5 @@
 import os
+
 os.environ["KERAS_BACKEND"] = "tensorflow"
 import keras
 from keras import layers
@@ -10,6 +11,8 @@ num_actions = 1
 upper_bound = 2
 lower_bound = -2
 
+
+# This OUActionNoise class adds noise to the action output of the actor model to encourage exploration
 class OUActionNoise:
     def __init__(self, mean, std_deviation, theta=0.15, dt=1e-2, x_initial=None):
         self.theta = theta
@@ -21,9 +24,9 @@ class OUActionNoise:
 
     def __call__(self):
         x = (
-            self.x_prev
-            + self.theta * (self.mean - self.x_prev) * self.dt
-            + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=self.mean.shape)
+                self.x_prev
+                + self.theta * (self.mean - self.x_prev) * self.dt
+                + self.std_dev * np.sqrt(self.dt) * np.random.normal(size=self.mean.shape)
         )
         self.x_prev = x
         return x
@@ -33,6 +36,7 @@ class OUActionNoise:
             self.x_prev = self.x_initial
         else:
             self.x_prev = np.zeros_like(self.mean)
+
 
 class Buffer:
     def __init__(self, buffer_capacity=100000, batch_size=64):
@@ -62,8 +66,9 @@ class Buffer:
         next_state_batch = tf.convert_to_tensor(self.next_state_buffer[batch_indices])
         return state_batch, action_batch, reward_batch, next_state_batch
 
+
 class DDPGAgent:
-    def __init__(self, critic_lr = 0.002, actor_lr = 0.001):
+    def __init__(self, critic_lr=0.002, actor_lr=0.001):
         self.actor_model = self.get_actor()
         self.critic_model = self.get_critic()
         self.target_actor = self.get_actor()
@@ -82,10 +87,13 @@ class DDPGAgent:
         self.tau = 0.005
 
     def get_actor(self):
+        # Initializing weights between -3e-3 and 3-e3 ensures stable initial actions, prevents saturation,
+        # and promotes smooth learning
         last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
         inputs = layers.Input(shape=(num_states,))
         out = layers.Dense(128, activation="relu")(inputs)
         out = layers.Dense(128, activation="relu")(out)
+        # initializations of the output layer with small values because they directly output the action
         outputs = layers.Dense(1, activation="tanh", kernel_initializer=last_init)(out)
         outputs = outputs * upper_bound
         model = tf.keras.Model(inputs, outputs)
@@ -105,6 +113,21 @@ class DDPGAgent:
         outputs = layers.Dense(1)(out)
         model = tf.keras.Model([state_input, action_input], outputs)
         return model
+
+    # def get_critic(self):
+    #     state_input = layers.Input(shape=(num_states,))
+    #     state_out = layers.Dense(16, activation="relu")(state_input)
+    #     state_out = layers.Dense(32, activation="relu")(state_out)
+    #
+    #     action_input = layers.Input(shape=(num_actions,))
+    #     action_out = layers.Dense(32, activation="relu")(action_input)
+    #
+    #     concat = layers.Concatenate()([state_out, action_out])
+    #     out = layers.Dense(256, activation="relu")(concat)
+    #     out = layers.Dense(256, activation="relu")(out)
+    #     outputs = layers.Dense(1)(out)
+    #     model = tf.keras.Model([state_input, action_input], outputs)
+    #     return model
 
     @tf.function
     def update(self, state_batch, action_batch, reward_batch, next_state_batch):

@@ -12,7 +12,7 @@ agent.target_actor.load_weights("weights/pendulum_target_actor.weights.h5")
 agent.target_critic.load_weights("weights/pendulum_target_critic.weights.h5")
 
 for ep in range(3):
-    prev_state, _ = env.reset()
+    env.reset()
     episodic_reward = 0
     done = False
     truncated = False

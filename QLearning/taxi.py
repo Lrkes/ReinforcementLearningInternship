@@ -24,9 +24,8 @@ def main():
 
     # For Plots and prints
     scores = []
-    exploration_count = 0
-    exploitation_count = 0
-    exploration_percentage = []
+    epsilon_values = []
+
 
     # Training
     for episode in range(num_episodes):
@@ -40,15 +39,11 @@ def main():
             # Behavior policy
             if random.uniform(0, 1) < epsilon:
                 action = env.action_space.sample()
-
-                exploration_count += 1
             else:
                 # Array with Actions that have the highest Q-Value for the State
                 max_indices = np.where(qtable[state, :] == np.max(qtable[state, :]))[0]
                 # Select a Random Action from max_indices
                 action = np.random.choice(max_indices)
-
-                exploitation_count += 1
 
             # Take action and observe reward
             new_state, reward, terminated, truncated, info = env.step(action)
@@ -67,11 +62,7 @@ def main():
 
         # For Visualization
         scores.append(total_rewards)
-
-
-        if episode % 10 == 0:
-            exploration_pct = (exploration_count / (exploration_count + exploitation_count)) * 100
-            exploration_percentage.append(exploration_pct)
+        epsilon_values.append(epsilon)
 
         # Decrease epsilon
         epsilon = max(0.01, np.exp(-decay_rate * episode))
@@ -80,11 +71,11 @@ def main():
     # Results plotted
     _, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 12))
 
-    # Plot 1: Exploration vs. Exploitation
-    axes[0].plot(exploration_percentage, label='Exploration Percentage')
-    axes[0].set_xlabel('Episode (in intervals of 10)')
-    axes[0].set_ylabel('Exploration Percentage')
-    axes[0].set_title('Exploration vs. Exploitation Over Time')
+    # Plot 1: Epsilon Over Time
+    axes[0].plot(epsilon_values, label='Epsilon Value')
+    axes[0].set_xlabel('Episode')
+    axes[0].set_ylabel('Epsilon')
+    axes[0].set_title('Epsilon Value Over Time')
     axes[0].legend()
 
     # Plot 2: Score vs. Episode

@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
-import numpy as np
-from collections import deque
+
 
 class QNetwork(nn.Module):
     def __init__(self, state_size, action_size, size, seed):

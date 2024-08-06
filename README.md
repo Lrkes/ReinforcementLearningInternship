@@ -7,6 +7,7 @@ To get a feel for Q-Learning I started with an implementation in the Taxi Enviro
 ![Results](Visualization/taxi/results.png)
 
 ### FrozenLake
+In Frozenlake my main focus was on visualizing the learning process.
 ![Win percentage](Visualization/frozenLake/win_percentage.png)
 ![Heatmap Statevisits](Visualization/frozenLake/heatmap_statevisits.png)
 ![Q Values](Visualization/frozenLake/Q-Values.png)

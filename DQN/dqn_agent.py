@@ -10,50 +10,40 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, seed, eps_start, eps_end, eps_decay, buffer_size=int(1e5),
-                 batch_size=64, gamma=0.99, lr=0.001, tau=0.005, update_every=4, size=128):
+    def __init__(self, state_size, action_size, seed, eps_start=1, eps_end=0.01, eps_decay=0.99, buffer_size=int(1e5),
+                 batch_size=128, gamma=0.99, lr=0.0005, tau=0.001, size=128):
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
-
+        
         # Neural networks and optimizer
         self.qnetwork_local = QNetwork(state_size, action_size, size, seed).to(device)  # Local network for training
-        self.qnetwork_target = QNetwork(state_size, action_size, size, seed).to(
-            device)  # Target network for stable Q-value estimation
+        self.qnetwork_target = QNetwork(state_size, action_size, size, seed).to(device)  # Target network for stable Q-value estimation
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=lr)  # Optimizer for training the local network
-
+        
         # Experience replay memory
         self.memory = deque(maxlen=buffer_size)  # Replay buffer to store experiences
         self.batch_size = batch_size  # Batch size for sampling from replay buffer
-
+        
         # Discount factor for future rewards
         self.gamma = gamma
-
+        
         # Soft update parameter for target network
         self.tau = tau
-
-        # Update frequency and time step counter
-        self.update_every = update_every  # Frequency of learning step
-        self.t_step = 0  # Counter to track the number of steps
-
+        
         # Exploration-exploitation parameters
-        self.eps = eps_start  # Initial epsilon value for exploration
-        self.eps_end = eps_end  # Minimum epsilon value
-        self.eps_decay = eps_decay  # Decay rate for epsilon
+        self.eps = eps_start
+        self.eps_end = eps_end # min
+        self.eps_decay = eps_decay
 
     def step(self, state, action, reward, next_state, done):
         # Add Info to Memory
         self.memory.append((state, action, reward, next_state, done))
-
-        # Update the Step Counter
-        self.t_step = (self.t_step + 1) % self.update_every
-        if self.t_step == 0:
-            if len(self.memory) > self.batch_size:
-                # Sample experiences if the step reaches 0 and the memory is larger than the batch size
-                experiences = self.sample()
-                # Learn on the previously sampled data
-                self.learn(experiences, self.gamma)
-
+        
+        if len(self.memory) > self.batch_size:
+            experiences = self.sample()
+            self.learn(experiences, self.gamma)
+    
     def act(self, state):
         # Convert the state to a tensor and add a batch dimension
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
@@ -63,13 +53,13 @@ class DQNAgent:
             action_values = self.qnetwork_local(state)
         # Set the network back to training mode (to resume learning later)
         self.qnetwork_local.train()
-
+        
         # Choose the action with the highest value or explore
         if random.random() > self.eps:
             return np.argmax(action_values.cpu().data.numpy())
         else:
             return random.choice(np.arange(self.action_size))
-
+    
     def learn(self, experiences, gamma):
         states, actions, rewards, next_states, dones = experiences
 
@@ -87,7 +77,6 @@ class DQNAgent:
         loss.backward()
         self.optimizer.step()
 
-        # Soft update the target network
         self.soft_update(self.qnetwork_local, self.qnetwork_target, self.tau)
 
     def soft_update(self, local_model, target_model, tau):
@@ -98,16 +87,14 @@ class DQNAgent:
     def sample(self):
         # Randomly sample a batch of experiences from memory
         experiences = random.sample(self.memory, self.batch_size)
-
+    
         # Convert the batch of experiences to PyTorch tensors
         states = torch.from_numpy(np.vstack([e[0] for e in experiences if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e[1] for e in experiences if e is not None])).long().to(device)
         rewards = torch.from_numpy(np.vstack([e[2] for e in experiences if e is not None])).float().to(device)
         next_states = torch.from_numpy(np.vstack([e[3] for e in experiences if e is not None])).float().to(device)
-        dones = torch.from_numpy(np.vstack([e[4] for e in experiences if e is not None]).astype(np.uint8)).float().to(
-            device)
-
-        # Return the batch of experiences as tuples
+        dones = torch.from_numpy(np.vstack([e[4] for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
+        
         return states, actions, rewards, next_states, dones
 
     def update_epsilon(self):

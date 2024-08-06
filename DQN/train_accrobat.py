@@ -4,7 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 
-# Explicitly set device to CPU
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 env = gym.make('Acrobot-v1')
@@ -24,7 +23,7 @@ epsilons = []
 
 for i_episode in range(1, n_episodes + 1):
     state = env.reset()
-    state = state[0]  # Acrobot-v1 returns a tuple with state and additional info
+    state = state[0]
     score = 0
 
     for t in range(max_t):
@@ -50,10 +49,9 @@ for i_episode in range(1, n_episodes + 1):
     if i_episode % 100 == 0:
         print(f"\rEpisode {i_episode}\tAverage Score: {average_score:.2f}")
 
-# Save the trained model
 torch.save(agent.qnetwork_local.state_dict(), 'checkpoints/dqn_checkpoint.pth')
 
-# Plotting the scores
+# Plots
 plt.figure(figsize=(15, 10))
 
 # Plot the raw scores

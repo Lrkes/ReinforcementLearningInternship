@@ -7,16 +7,15 @@ from dqn_agent import DQNAgent
 
 # TODO: Improve performance
 
-# Explicitly set device to CPU
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 env = gym.make("MountainCar-v0")
 
-# Define settings
+# Hyperparameters
 learning_rate = 0.001
 batch_size = 64
 update_every = 5
-network_size = 64
+network_size = 128
 buffer_size = 125000
 eps_start = 1
 eps_end = 0.01
@@ -64,7 +63,6 @@ for i_episode in range(1, n_episodes + 1):
     if i_episode % 100 == 0:
         print(f"\rEpisode {i_episode}\tAverage Score: {average_score:.2f}")
 
-# Save the trained model
 torch.save(agent.qnetwork_local.state_dict(), 'checkpoints/mCar_checkpoint.pth')
 
 # Plotting the scores
@@ -92,8 +90,7 @@ plt.ylabel('Epsilon')
 plt.title('Epsilon Decay Over Time')
 plt.tight_layout()
 
-# Save the plot with a unique filename
-plt.savefig(f'Visualization/mCar/training_metrics_lr{learning_rate}_bs{batch_size}_update{update_every}_buffer{buffer_size}.png')
+plt.savefig(f'Visualization/mCar/mCarResults.png')
 plt.show()
 
 env.close()

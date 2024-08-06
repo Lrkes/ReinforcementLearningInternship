@@ -54,12 +54,16 @@ def main():
 
             new_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
+
+            # Q-Value updates: Q(s,a) = Q(s,a) + α * (r + γ * max(Q(s',a')) - Q(s,a))
             qtable[state, action] += learning_rate * (
                 reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action]
             )
 
             state_visits[new_state] += 1
+            
             state = new_state
+
             total_reward += reward
                 
             if episode < 1000:  

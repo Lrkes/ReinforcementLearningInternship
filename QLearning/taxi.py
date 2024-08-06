@@ -2,7 +2,6 @@ import numpy as np
 import gymnasium as gym
 import random
 import matplotlib.pyplot as plt
-from gymnasium.wrappers import RecordVideo
 
 def main():
     env = gym.make("Taxi-v3", render_mode='rgb_array')
@@ -25,9 +24,6 @@ def main():
 
     # For Plots and prints
     scores = []
-    non_negative_rewards = 0
-    scores_per_10 = []
-
     exploration_count = 0
     exploitation_count = 0
     exploration_percentage = []
@@ -44,9 +40,14 @@ def main():
             # Behavior policy
             if random.uniform(0, 1) < epsilon:
                 action = env.action_space.sample()
+
                 exploration_count += 1
             else:
-                action = np.argmax(qtable[state, :])
+                # Array with Actions that have the highest Q-Value for the State
+                max_indices = np.where(qtable[state, :] == np.max(qtable[state, :]))[0]
+                # Select a Random Action from max_indices
+                action = np.random.choice(max_indices)
+
                 exploitation_count += 1
 
             # Take action and observe reward
@@ -66,44 +67,44 @@ def main():
 
         # For Visualization
         scores.append(total_rewards)
-        scores_per_10.append(total_rewards)
 
 
         if episode % 10 == 0:
-            average = np.mean(scores_per_10)
-            print(f"The current episode is {episode} and the epsilon value is {epsilon}. Average reward for the last 10 episodes is: {average}")
-            scores_per_10 = []
-
             exploration_pct = (exploration_count / (exploration_count + exploitation_count)) * 100
             exploration_percentage.append(exploration_pct)
 
-        if total_rewards >= 0:
-            non_negative_rewards += 1
-
-
         # Decrease epsilon
-        epsilon = np.exp(-decay_rate * episode)
-
-    
-    print(f"Training completed over {num_episodes} episodes")
-    print(f"Non-negative rewards: {non_negative_rewards}")
+        epsilon = max(0.01, np.exp(-decay_rate * episode))
 
 
-    axes = plt.subplots(nrows=2, ncols=1, figsize=(10, 8))
+    # Results plotted
+    _, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 12))
 
     # Plot 1: Exploration vs. Exploitation
-    axes[0].plot(exploration_percentage)
+    axes[0].plot(exploration_percentage, label='Exploration Percentage')
     axes[0].set_xlabel('Episode (in intervals of 10)')
     axes[0].set_ylabel('Exploration Percentage')
     axes[0].set_title('Exploration vs. Exploitation Over Time')
+    axes[0].legend()
 
     # Plot 2: Score vs. Episode
-    axes[1].plot(scores)
+    axes[1].plot(scores, label='Score')
     axes[1].set_xlabel('Episode')
     axes[1].set_ylabel('Score')
     axes[1].set_title('Score vs Episode')
+    axes[1].legend()
+
+    # Plot 3: Learning Curve with Rolling Average
+    window_size = 50
+    rolling_avg_rewards = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
+    axes[2].plot(rolling_avg_rewards, label='Rolling Average Reward')
+    axes[2].set_xlabel('Episode')
+    axes[2].set_ylabel('Average Reward')
+    axes[2].set_title('Learning Curve')
+    axes[2].legend()
 
     plt.tight_layout()
+    plt.savefig('Visualization/taxi/results.png')
     plt.show()
 
     env.close()

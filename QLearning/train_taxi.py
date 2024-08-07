@@ -3,9 +3,10 @@ import gymnasium as gym
 import random
 import matplotlib.pyplot as plt
 
+
 def main():
     env = gym.make("Taxi-v3", render_mode='rgb_array')
-    
+
     # Initialize q-table
     state_size = env.observation_space.n
     action_size = env.action_space.n
@@ -21,19 +22,16 @@ def main():
     num_episodes = 1000
     max_steps = 100
 
-
     # For Plots and prints
     scores = []
     epsilon_values = []
-
 
     # Training
     for episode in range(num_episodes):
         # Reset the environment
         state, _ = env.reset()
         done = False
-        total_rewards = 0 
-        
+        total_rewards = 0
 
         for s in range(max_steps):
             # Behavior policy
@@ -50,7 +48,8 @@ def main():
             done = terminated or truncated
 
             # Q-learning algorithm (Target policy)
-            qtable[state, action] = qtable[state, action] + learning_rate * (reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action])
+            qtable[state, action] = qtable[state, action] + learning_rate * (
+                        reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action])
 
             # Update to our new state
             state = new_state
@@ -66,7 +65,6 @@ def main():
 
         # Decrease epsilon
         epsilon = max(0.01, np.exp(-decay_rate * episode))
-
 
     # Results plotted
     _, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 12))
@@ -87,7 +85,7 @@ def main():
 
     # Plot 3: Learning Curve with Rolling Average
     window_size = 50
-    rolling_avg_rewards = np.convolve(scores, np.ones(window_size)/window_size, mode='valid')
+    rolling_avg_rewards = np.convolve(scores, np.ones(window_size) / window_size, mode='valid')
     axes[2].plot(rolling_avg_rewards, label='Rolling Average Reward')
     axes[2].set_xlabel('Episode')
     axes[2].set_ylabel('Average Reward')
@@ -99,6 +97,7 @@ def main():
     plt.show()
 
     env.close()
+
 
 if __name__ == "__main__":
     main()

@@ -4,12 +4,13 @@ import random
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def main():
     env = gym.make("FrozenLake-v1", is_slippery=True)
 
     state_size = env.observation_space.n
     action_size = env.action_space.n
-    
+
     qtable = np.zeros((state_size, action_size))
 
     # Hyperparameter
@@ -21,7 +22,7 @@ def main():
     # Episodes
     num_episodes = 5000
     max_steps = 100
-    
+
     # For plots
     state_visits = np.zeros(state_size)
     plot_interval = 250
@@ -33,7 +34,6 @@ def main():
 
     all_q_values = [[] for _ in range(state_size)]
 
-
     for episode in range(num_episodes):
         state, _ = env.reset()
         done = False
@@ -42,43 +42,39 @@ def main():
 
         for step in range(max_steps):
 
-
-
             if random.uniform(0, 1) < epsilon:
                 action = env.action_space.sample()
             else:
                 # Array with Actions that have the highest Q-Value for the State
                 max_indices = np.where(qtable[state, :] == np.max(qtable[state, :]))[0]
                 # Select a Random Action from max_indices
-                action = np.random.choice(max_indices)              
+                action = np.random.choice(max_indices)
 
             new_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
             # Q-Value updates: Q(s,a) = Q(s,a) + α * (r + γ * max(Q(s',a')) - Q(s,a))
             qtable[state, action] += learning_rate * (
-                reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action]
+                    reward + discount_rate * np.max(qtable[new_state, :]) - qtable[state, action]
             )
 
             state_visits[new_state] += 1
-            
+
             state = new_state
 
             total_reward += reward
-                
-            if episode < 1000:  
+
+            if episode < 1000:
                 for s in range(state_size):
                     for action in range(action_size):
                         all_q_values[s].append(qtable[s, action])
 
             if done:
                 break
-            
 
-        
         if total_reward > 0:
             current_win_count += 1
-        
+
         epsilon = np.exp(-decay_rate * episode)
 
         if not (episode + 1) % plot_interval:
@@ -134,9 +130,9 @@ def main():
     plt.savefig('Visualization/frozenLake/win_percentage2.png')
     plt.show()
 
-     # 4. Q-Value over time
+    # 4. Q-Value over time
     fig, axes = plt.subplots(nrows=4, ncols=4, figsize=(15, 12))
-    
+
     for state in range(state_size):
         row = state // 4
         col = state % 4
@@ -152,6 +148,6 @@ def main():
     plt.savefig('Visualization/frozenLake/Q-Values2.png')
     plt.show()
 
-        
+
 if __name__ == "__main__":
     main()

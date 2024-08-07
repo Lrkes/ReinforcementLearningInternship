@@ -1,6 +1,6 @@
 import tensorflow as tf
 import gymnasium as gym
-from ddpg_Agent import DDPGAgent
+from ddpg_agent import DDPGAgent
 
 env = gym.make("Pendulum-v1", render_mode="human")
 

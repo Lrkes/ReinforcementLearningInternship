@@ -2,7 +2,7 @@ import tensorflow as tf
 import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
-from ddpg_Agent import DDPGAgent
+from ddpg_agent import DDPGAgent
 
 env = gym.make("Pendulum-v1")
 agent = DDPGAgent()

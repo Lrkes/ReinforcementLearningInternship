@@ -7,7 +7,7 @@ from ddpg_agent import DDPGAgent
 env = gym.make("Pendulum-v1")
 agent = DDPGAgent()
 
-total_episodes = 500
+total_episodes = 100
 
 ep_reward_list = []
 avg_reward_list = []
@@ -35,7 +35,7 @@ for ep in range(total_episodes):
 
     ep_reward_list.append(episodic_reward)
     avg_reward = np.mean(ep_reward_list[-40:])
-    print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
+    print("Episode * {} * Avg Reward is ==> {}".format(ep, round(avg_reward, 2)))
     avg_reward_list.append(avg_reward)
 
 plt.plot(avg_reward_list)
@@ -43,7 +43,11 @@ plt.xlabel("Episode")
 plt.ylabel("Avg. Episodic Reward")
 plt.show()
 
-agent.actor_model.save_weights("weights/newCpendulum_actor.weights.h5")
-agent.critic_model.save_weights("weights/newCpendulum_critic.weights.h5")
-agent.target_actor.save_weights("weights/newCpendulum_target_actor.weights.h5")
-agent.target_critic.save_weights("weights/newCpendulum_target_critic.weights.h5")
+plt.savefig('Visualization/pendulum/training_metrics.png')
+
+
+
+agent.actor_model.save_weights("weights/actor.weights.h5")
+agent.critic_model.save_weights("weights/critic.weights.h5")
+agent.target_actor.save_weights("weights/target_actor.weights.h5")
+agent.target_critic.save_weights("weights/target_critic.weights.h5")

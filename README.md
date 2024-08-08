@@ -11,7 +11,9 @@ I mainly focused on the following algorithms:
 - Q-Learning
 - Deep Q-Networks (DQN)
 - Deep Deterministic Policy Gradients (DDPG)
+
 ___ 
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Installation](#installation)
@@ -31,6 +33,9 @@ To install the required packages run the following command:
 ```bash
 pip install -r requirements.txt
 ```
+
+___
+
 ## Usage
 To run the training of the different algorithms navigate to the corresponding folder and run the following command:
 ```bash

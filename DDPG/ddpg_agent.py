@@ -92,8 +92,8 @@ class DDPGAgent:
         action_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
 
         inputs = layers.Input(shape=(num_states,))
-        out = layers.Dense(64, activation="relu")(inputs)
-        out = layers.Dense(64, activation="relu")(out)
+        out = layers.Dense(128, activation="relu")(inputs)
+        out = layers.Dense(128, activation="relu")(out)
         # initializations of the output layer with small values because they directly output the action
         outputs = layers.Dense(1, activation="tanh", kernel_initializer=action_init)(out)
         outputs = outputs * upper_bound
@@ -101,22 +101,11 @@ class DDPGAgent:
         model = tf.keras.Model(inputs, outputs)
         return model
 
-    # def get_actor(self):
-    #     # Initializing weights between -3e-3 and 3-e3 ensures stable initial actions, prevents saturation,
-    #     # and promotes smooth learning
-    #     last_init = tf.random_uniform_initializer(minval=-0.003, maxval=0.003)
-    #     inputs = layers.Input(shape=(num_states,))
-    #     out = layers.Dense(128, activation="relu")(inputs)
-    #     out = layers.Dense(128, activation="relu")(out)
-    #     # initializations of the output layer with small values because they directly output the action
-    #     outputs = layers.Dense(1, activation="tanh", kernel_initializer=last_init)(out)
-    #     outputs = outputs * upper_bound
-    #     model = tf.keras.Model(inputs, outputs)
-    #     return model
 
     def get_critic(self):
         # State as input
         state_input = layers.Input(shape=(num_states,))
+        state_out = layers.Dense(16, activation="relu")(state_input)
         state_out = layers.Dense(32, activation="relu")(state_input)
 
         # Action as input
@@ -125,28 +114,14 @@ class DDPGAgent:
 
         # Combining the state and action paths
         concat = layers.Concatenate()([state_out, action_out])
-        concat_out = layers.Dense(32, activation="relu")(concat)
+        concat_out = layers.Dense(256, activation="relu")(concat)
+        out = layers.Dense(256, activation="relu")(concat_out)
 
-        output = layers.Dense(1)(concat_out)
+        output = layers.Dense(1)(out)
 
         model = tf.keras.Model([state_input, action_input], output)
 
         return model
-
-    # def get_critic(self):
-    #     state_input = layers.Input(shape=(num_states,))
-    #     state_out = layers.Dense(16, activation="relu")(state_input)
-    #     state_out = layers.Dense(32, activation="relu")(state_out)
-    #
-    #     action_input = layers.Input(shape=(num_actions,))
-    #     action_out = layers.Dense(32, activation="relu")(action_input)
-    #
-    #     concat = layers.Concatenate()([state_out, action_out])
-    #     out = layers.Dense(256, activation="relu")(concat)
-    #     out = layers.Dense(256, activation="relu")(out)
-    #     outputs = layers.Dense(1)(out)
-    #     model = tf.keras.Model([state_input, action_input], outputs)
-    #     return model
 
     @tf.function
     def update(self, state_batch, action_batch, reward_batch, next_state_batch):
@@ -190,14 +165,6 @@ class DDPGAgent:
         self.update(state_batch, action_batch, reward_batch, next_state_batch)
 
     def update_target(self, target_weights, weights, tau):
-        """
-        Update the target network weights using soft update.
-
-        Parameters:
-        - target_weights: List or iterable of target network variables (weights).
-        - weights: List or iterable of current network variables (weights).
-        - tau: Float, the update rate for the target network (0 < tau < 1).
-        """
         for target, current in zip(target_weights, weights):
             # Perform the soft update: target = tau * current + (1 - tau) * target
             target.assign(current * tau + target * (1 - tau))

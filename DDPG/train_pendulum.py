@@ -38,6 +38,7 @@ for ep in range(total_episodes):
     print("Episode * {} * Avg Reward is ==> {}".format(ep, round(avg_reward, 2)))
     avg_reward_list.append(avg_reward)
 
+plt.figure(figsize=(15, 10))
 plt.plot(avg_reward_list)
 plt.xlabel("Episode")
 plt.ylabel("Avg. Episodic Reward")

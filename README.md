@@ -111,7 +111,7 @@ Results for this Environment vary drastically due to the stochastic state transi
 ___
 
 ## Future plans
-- [ ] Create DDPG Algorithm from scratch since I was leaning too much on the tutorials code.
+- [ ] Implement DDPG Algorithm from scratch.
 
 ___
 

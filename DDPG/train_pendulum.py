@@ -7,7 +7,7 @@ from ddpg_agent import DDPGAgent
 env = gym.make("Pendulum-v1")
 agent = DDPGAgent()
 
-total_episodes = 100
+total_episodes = 250
 
 ep_reward_list = []
 avg_reward_list = []
@@ -41,9 +41,8 @@ for ep in range(total_episodes):
 plt.plot(avg_reward_list)
 plt.xlabel("Episode")
 plt.ylabel("Avg. Episodic Reward")
-plt.show()
-
 plt.savefig('Visualization/pendulum/training_metrics.png')
+plt.show()
 
 
 

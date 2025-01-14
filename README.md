@@ -1,6 +1,3 @@
-# TODO:
-- [ ] Check and fix installation of packages and running of programm
-
 # Japan Internship: Gymnasium
 
 ## Introduction

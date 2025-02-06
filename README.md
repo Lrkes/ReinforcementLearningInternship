@@ -119,4 +119,4 @@ ___
 
 ### References
 - [Gymnasium Docs](https://gymnasium.farama.org/)
-- [Pendulum Tutorial](https://keras.io/examples/rl/ddpg_pendulum/) My DDPG implementation is HIGHLY "inspired" by this tutorial!
+- [Pendulum Tutorial](https://keras.io/examples/rl/ddpg_pendulum/) My DDPG implementation copies this tutorial!
